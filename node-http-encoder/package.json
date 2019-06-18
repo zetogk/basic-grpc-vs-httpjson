@@ -1,0 +1,18 @@
+{
+  "name": "http-encoder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^18.3.1",
+    "download": "^7.1.0",
+    "hapi": "^18.1.0",
+    "micro": "^9.3.4",
+    "microrouter": "^3.1.3"
+  }
+}
