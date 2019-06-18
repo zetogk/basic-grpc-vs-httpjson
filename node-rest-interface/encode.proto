@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package encoderPkg;
+
+message EncodeRequest {
+    string b64str = 1;
+    repeated string chars = 2;
+}
+
+message EncodeResponse {
+    string message = 1;
+    string error = 2;
+    string newb64 = 3;
+}
+
+service EncoderSvc {
+    rpc Encode (EncodeRequest) returns (EncodeResponse);
+}
