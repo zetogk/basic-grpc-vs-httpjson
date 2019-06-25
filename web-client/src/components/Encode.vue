@@ -32,15 +32,46 @@
         </v-data-table>
       </v-flex>
     </v-layout>
+
+    <v-layout class="stats" row md24>
+      <v-flex class="stat_detail" md24><b>Average HTTP:</b> {{averageHttp}} ms. <b>% saved time: </b> {{perHttp}} <v-progress-linear v-model="perHttpBar"></v-progress-linear> </v-flex>
+    </v-layout>
+
+    <v-layout class="stats" row md24>
+      <v-flex class="stat_detail" md24><b>Average GRPC:</b> {{averageGrpc}} ms <b>% saved time: </b> {{perGrpc}} <v-progress-linear v-model="perGrpcBar"></v-progress-linear></v-flex>
+    </v-layout>
+    
   </v-container>
 </template>
 
+<style scoped>
+
+  .stats {
+    margin-top: 20px;
+  }
+
+  .stat_detail {
+    display: block;
+    width: 100%;
+  }
+
+</style>
+
+
 <script>
+
+import { vProgressLinear } from 'vuetify/lib';
 
 export default {
   data: () => ({
     componentKey: 0,
-    encodesRecords: [],
+    encode: 0,
+    averageHttp: 0,
+    averageGrpc: 0,
+    perHttp: 0,
+    pergrpc: 0,
+    perHttpBar: 0,
+    perGrpcBar: 0,
     headersTable: [{
       value: 'byteSize',
       text: 'Size (in bytes) sent',
@@ -53,12 +84,12 @@ export default {
     },
     {
       value: 'grpcTime',
-      text: 'GRPC Time',
+      text: 'GRPC Time (in ms)',
       align: 'center'
     },
     {
       value: 'httpTime',
-      text: 'HTTP Time',
+      text: 'HTTP/JSON Time (in ms)',
       align: 'center'
     },
     {
@@ -74,7 +105,7 @@ export default {
     ],
     imageUrl: "",
     imageUrlRules: [v => !!v || "Image URL is required"],
-    encodeString: "",
+    encodeString: "abxz",
     encodeStringRules: [
       v => !!v || "Encode string is required",
       v =>
@@ -93,13 +124,44 @@ export default {
           encodeString: this.encodeString
         })
       const user = this.user;
-      this.reset();
+      //this.reset();
+      this.imageUrl = '';
       const data = await this.$http.get(`http://localhost:3000/encode/${user}`);
       this.encodesRecords = data.data.reverse().map(record => ({
         ...record,
         kbyteSize: record.byteSize / 1000,
         lastRecord: false
       }));
+      this.averageHttp = 0
+      this.averageGrpc = 0
+      data.data.map(record => {
+        this.averageHttp = this.averageHttp + record.httpTime;
+        this.averageGrpc = this.averageGrpc + record.grpcTime;
+      });
+
+      this.averageHttp = this.averageHttp/data.data.length
+      this.averageGrpc = this.averageGrpc/data.data.length
+
+      console.log('this.averageHttp: ', this.averageHttp)
+      console.log('this.averageGrpc: ', this.averageGrpc)
+
+      if (this.averageHttp == this.averageGrpc) {
+        this.perHttp = 0
+        this.perGrpc = 0
+        this.perHttpBar = 100
+        this.perGrpcBar = 100
+      } else if (this.averageHttp > this.averageGrpc) {
+        this.perHttp = 0
+        this.perGrpc = this.averageGrpc / this.averageHttp * 100
+        this.perHttpBar = 100
+        this.perGrpcBar = 100 - this.perGrpc
+      } else{
+        this.perGrpc = 0
+        this.perHttp = this.averageHttp / this.averageGrpc * 100
+        this.perHttpBar = 100 - this.perHttp
+        this.perGrpcBar = 100
+      }
+
       if (this.encodesRecords.length > 0) {
         this.encodesRecords[0].lastRecord = true;
       } 
@@ -107,6 +169,9 @@ export default {
       this.$forceUpdate();
       console.log('this.encodesRecords::: ', this.encodesRecords);
     }
+  },
+  componentes: {
+    vProgressLinear: vProgressLinear
   }
 };
 </script>

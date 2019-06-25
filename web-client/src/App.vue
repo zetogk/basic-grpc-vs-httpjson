@@ -2,8 +2,8 @@
   <v-app>
     <v-toolbar app>
       <v-toolbar-title class="headline text-uppercase">
-        <span>Vuetify</span>
-        <span class="font-weight-light">MeetUp 3# K8SMedellín</span>
+        <span>MeetUp 3</span>
+        <span class="font-weight-light"> #K8SMedellín</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn
