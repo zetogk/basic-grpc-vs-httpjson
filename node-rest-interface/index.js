@@ -2,6 +2,8 @@
 
 const path = require('path');
 
+const { error, log } = console;
+
 const axios = require('axios');
 const download = require('download');
 const GRPCClient = require('node-grpc-client');
@@ -47,21 +49,33 @@ const init = async () => {
 
                 /* GENERIC PROCESS */
                 const { user, imageUrl, encodeString } = request.payload;
-                console.log('PAYLOAD::: ', request.payload);
+                log('PAYLOAD::: ', request.payload);
                 const imageData = await download(imageUrl);
                 const base64Image = Buffer.from(imageData, 'binary').toString('base64');
-                const encodeChars = encodeString.split('');
+                const encodeCharsToUse = encodeString == '' ? 'abxz' : encodeString;
+                const encodeChars = encodeCharsToUse.split('');
                 /* GENERIC PROCESS */
 
-
                 /* HTTP+JSON PROCESS */
-                let initialMoment = new moment()
-                await axios.post('http://localhost:3001', {
-                    b64str: base64Image,
-                    chars: encodeChars
-                });
-                let endMoment = new moment();
-                const durationHTTP = endMoment.diff(initialMoment);
+                let initialMoment = new moment();
+                let durationHTTP = -1;
+                let endMoment = -1;
+                try {
+                    
+                    await axios.post('http://localhost:3001', {
+                        b64str: base64Image,
+                        chars: encodeChars
+                    });
+
+                    endMoment = new moment();
+                    durationHTTP = endMoment.diff(initialMoment);
+
+                } catch (err) {
+
+                    error('HTTP request has failed: ', err)
+                    
+                }
+                
                 /* HTTP+JSON PROCESS */
 
 
@@ -77,9 +91,8 @@ const init = async () => {
                 const durationGRPC = endMoment.diff(initialMoment);
                 /* GRPC+Protobuf PROCESS */
 
-                //console.log('httpRequest::: ', httpRequest.data);
-                console.log('durationHTTP::: ', durationHTTP);
-                console.log('durationGRPC::: ', durationGRPC);
+                log('durationHTTP::: ', durationHTTP);
+                log('durationGRPC::: ', durationGRPC);
 
                 const encodeObject = {
                     user,
